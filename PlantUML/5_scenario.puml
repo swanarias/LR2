@@ -1,0 +1,28 @@
+@startuml
+title Сценарий 5: Переполнение цифрового реестра
+skinparam monochrome true
+skinparam shadowing false
+
+participant "Auditor" as Auditor
+participant "AuditProtocol" as Protocol
+participant "DigitalRegistry" as Registry
+participant "FinancialReport" as Report
+
+Auditor -> Protocol : Sign("SIG-999")
+activate Protocol
+Protocol --> Auditor : Valid
+deactivate Protocol
+
+Auditor -> Registry : AddEntry(protocol.Id)
+activate Registry
+note right of Registry : Registry.IsFull == true
+Registry --[#blue]> Auditor : return false (Rejected)
+deactivate Registry
+
+Auditor -> Report : SetStatus(Rejected)
+activate Report
+Report --> Auditor
+deactivate Report
+
+note over Registry : Ошибка записи: достигнут лимит хранилища
+@enduml

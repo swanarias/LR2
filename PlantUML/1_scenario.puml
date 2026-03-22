@@ -1,0 +1,53 @@
+@startuml
+title Сценарий 1: Успешная верификация и регистрация отчета
+skinparam monochrome true
+skinparam shadowing false
+
+actor "Внешняя система" as Ext
+participant "ChiefInspector" as Inspector
+participant "Auditor" as Auditor
+participant "VerificationSystem" as System
+participant "FinancialReport" as Report
+participant "AuditProtocol" as Protocol
+participant "DigitalRegistry" as Registry
+
+Ext -> Inspector : ProcessAudit(report, auditor, system, registry)
+activate Inspector
+
+Inspector -> Report : IsValid()
+Report --> Inspector : true
+
+Inspector -> Report : Verify()
+activate Report
+Report --> Inspector
+deactivate Report
+
+Inspector -> Auditor : SignForReport(report, protocol, registry)
+activate Auditor
+
+Auditor -> System : PerformScan(report)
+activate System
+System --> Auditor : true
+deactivate System
+
+Auditor -> Protocol : Sign("E-SIGN-2026")
+activate Protocol
+Protocol --> Auditor
+deactivate Protocol
+
+Auditor -> Registry : AddEntry(protocol.Id)
+activate Registry
+Registry --> Auditor
+deactivate Registry
+
+Auditor -> Report : MarkAsArchived()
+activate Report
+Report --> Auditor
+deactivate Report
+
+Auditor --> Inspector : true
+deactivate Auditor
+
+Inspector --> Ext : true
+deactivate Inspector
+@enduml

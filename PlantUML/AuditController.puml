@@ -1,0 +1,43 @@
+@startuml
+title Архитектура управления (Controller & Data Results)
+
+class StateAuditController {
+    - ChiefInspector _inspector
+    - Auditor _auditor
+    - DigitalRegistry _registry
+    - VerificationSystem _sys
+    
+    -- Сценарии использования --
+    + void Prepare()
+    + AuditBatchResult ProcessMassAudit(List<FinancialReport> reports)
+    + VerificationResult ExecuteSingleCheck(FinancialReport report)
+    + RegistryStatusResult HandleSystemThreat()
+    + SyncResult FinalizeAndSync(AuditProtocol protocol)
+}
+
+package "Data Results" <<Rectangle>> {
+    class AuditBatchResult {
+        + int TotalProcessed
+        + int SuccessCount
+    }
+    class VerificationResult {
+        + bool IsLegit
+        + List<String> FoundViolations
+    }
+    class RegistryStatusResult {
+        + bool IsLocked
+        + int ActiveConnections
+    }
+    class SyncResult {
+        + bool IsStored
+        + String TransactionHash
+    }
+}
+
+' Связи контроллера с результатами
+StateAuditController ..> AuditBatchResult
+StateAuditController ..> VerificationResult
+StateAuditController ..> RegistryStatusResult
+StateAuditController ..> SyncResult
+
+@enduml

@@ -1,0 +1,33 @@
+@startuml
+title Сценарий 3: Прерывание аудита при сбое системы
+skinparam monochrome true
+skinparam shadowing false
+
+participant "AuditController" as Controller
+participant "ChiefInspector" as Inspector
+participant "Auditor" as Auditor
+participant "VerificationSystem" as System
+participant "FinancialReport" as Report
+
+Controller -> Inspector : ProcessAudit(report, auditor, system, ...)
+activate Inspector
+
+Inspector -> Auditor : SignForReport(report, ...)
+activate Auditor
+
+Auditor -> System : PerformScan(report)
+activate System
+note right of System : RequestCount > 100
+System --[#red]> Auditor : throw InvalidOperationException("System Malfunction")
+deactivate System
+
+Auditor --[#red]> Inspector : exception
+deactivate Auditor
+
+Inspector --[#red]> Controller : exception
+deactivate Inspector
+
+Controller -> Controller : HandleException()
+Controller -> Inspector : OffDuty()
+note over Controller : Процесс прерван из-за технического сбоя
+@enduml

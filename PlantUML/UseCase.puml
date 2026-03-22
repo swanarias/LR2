@@ -1,0 +1,35 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+skinparam monochrome true
+skinparam shadowing false
+
+actor "Главный аудитор" as Op
+
+rectangle "Система государственного аудита" {
+    usecase "Выполнение полного цикла аудита" as UC0
+    usecase "Пакетная проверка отчетности" as UC1
+    usecase "Массовая активация подразделений" as UC2
+    usecase "Смена дежурства персонала" as UC3
+    usecase "Блокировка при системном сбое" as UC4
+    usecase "Пополнение архива протоколов" as UC5
+    usecase "Валидация сектора документов" as UC6
+}
+
+Op --> UC0
+Op --> UC1
+Op --> UC2
+Op --> UC3
+Op --> UC4
+Op --> UC5
+Op --> UC6
+
+note right of UC0 : Основной сценарий: от приема\nотчета до архивации в реестре
+note right of UC1 : Автоматическая обработка списка\nотчетов с накоплением статистики[cite: 25, 30]
+note right of UC2 : Приведение группы инспекторов\nи систем в рабочее состояние
+note right of UC3 : Передача смены с суммированием\nколичества подписанных протоколов
+note right of UC4 : Аварийная остановка проверок\nпри критическом сбое системы
+note right of UC5 : Распределение новых бланков\nпротоколов по отделам аудита[cite: 30]
+note right of UC6 : Массовая проверка лимитов сумм\nбез вынесения финального решения[cite: 30]
+
+@enduml

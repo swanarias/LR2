@@ -1,0 +1,29 @@
+@startuml
+title Сценарий 4: Отказ в авторизации (Auditor OffDuty)
+skinparam monochrome true
+skinparam shadowing false
+
+participant "ChiefInspector" as Inspector
+participant "Auditor" as Auditor
+participant "FinancialReport" as Report
+
+[-> Inspector : ProcessAudit(report, auditor)
+activate Inspector
+
+Inspector -> Report : IsValid()
+Inspector -> Report : Verify()
+
+Inspector -> Auditor : SignForReport(report)
+activate Auditor
+
+note right of Auditor : State = OffDuty
+
+' Стандартный возврат исключения пунктиром
+Auditor --> Inspector : throw UnauthorizedAccessException
+deactivate Auditor
+
+[<-- Inspector : exception (Access Denied)
+deactivate Inspector
+
+note over Auditor, Inspector : Операция отклонена по соображениям безопасности
+@enduml

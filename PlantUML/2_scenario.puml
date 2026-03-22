@@ -1,0 +1,42 @@
+@startuml
+title Сценарий 2: Пакетная обработка квартальной отчетности
+skinparam monochrome true
+skinparam shadowing false
+
+participant "AuditController" as Controller
+participant "AuditSession" as Session
+participant "ChiefInspector" as Inspector
+participant "Auditor" as Auditor
+participant "FinancialReport" as Report
+
+[-> Controller : ExecuteBatchAudit(session)
+activate Controller
+
+Controller -> Session : StartSession()
+Controller -> Inspector : TakeDuty()
+Controller -> Auditor : TakeDuty()
+
+loop Для каждого отчета в session.Reports
+    Controller -> Inspector : ProcessAudit(report, auditor, ...)
+    activate Inspector
+    
+    Inspector -> Report : IsValid()
+    Inspector -> Report : Verify()
+    
+    Inspector -> Auditor : SignForReport(report, ...)
+    activate Auditor
+    Auditor -> Report : MarkAsArchived()
+    Auditor --> Inspector : true
+    deactivate Auditor
+    
+    Inspector --> Controller : true
+    deactivate Inspector
+end
+
+Controller -> Session : EndSession(true)
+Controller -> Inspector : OffDuty()
+Controller -> Auditor : OffDuty()
+
+[<-- Controller : Batch Completed
+deactivate Controller
+@enduml

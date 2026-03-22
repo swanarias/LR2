@@ -1,0 +1,68 @@
+@startuml
+title Модель состояний процесса государственного аудита
+header Диаграмма состояний (State Machine)
+skinparam monochrome true
+skinparam shadowing false
+
+[*] --> New : new FinancialReport()
+
+state "Регистрация отчета" as New
+New : Status = New
+
+New --> StaffActive : RunAudit() / TakeDuty()
+
+state "Персонал на смене" as StaffActive
+StaffActive : Inspector/Auditor -> Idle
+
+StaffActive --> SystemReady : VerificationSystem.Start()
+
+state "Система готова" as SystemReady
+SystemReady : System -> Operational
+
+SystemReady --> Scanning : Цикл по отчетам
+
+state "Проверка данных" as Scanning
+Scanning : system.PerformScan()
+
+Scanning --> Verified : [Sum < Limit] / Verify()
+Scanning --> AuditFailed : [Sum >= Limit] (Превышение лимита)
+
+state "Отчет верифицирован" as Verified
+Verified : Report -> Verified
+
+Verified --> ProtocolValid : Auditor.SignProtocol()
+Verified --> AuditFailed : [RequestCount > 100] (Сбой системы)
+Verified --> AuditFailed : [Auditor == OffDuty] (Ошибка полномочий)
+
+state "Протокол сформирован" as ProtocolValid
+ProtocolValid : Protocol -> Valid
+
+ProtocolValid --> EntryReady : DigitalRegistry.Prepare()
+ProtocolValid --> AuditFailed : [Report == Corrupted] (Ошибочный формат)
+ProtocolValid --> AuditFailed : [Registry == Full] (Реестр переполнен)
+
+state "Запись подготовлена" as EntryReady
+EntryReady : Entry -> Ready
+
+EntryReady --> Committed : Registry.AddEntry()
+
+state "Данные внесены" as Committed
+Committed : Entry -> Committed\nController -> Syncing
+
+Committed --> Archived : report.MarkAsArchived()
+
+state "Отчет архивирован" as Archived
+Archived : Report -> Archived
+
+Archived --> Scanning : [Есть еще отчеты]
+Archived --> Completed : [Все отчеты обработаны]
+
+state "Аудит завершен успешно" as Completed
+Completed : Audit -> Completed
+
+state "Аудит провален" as AuditFailed
+AuditFailed : Audit -> Failed
+
+Completed --> [*]
+AuditFailed --> [*]
+@enduml

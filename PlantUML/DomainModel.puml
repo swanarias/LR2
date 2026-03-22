@@ -1,0 +1,62 @@
+@startuml
+title Структурная модель данных (Domain Model) — Система Госаудита
+
+' === ПЕРЕЧИСЛЕНИЯ ===
+enum ReportStatus {
+    New
+    Authorized
+    Checked
+}
+
+' === КЛАССЫ СИСТЕМЫ ===
+
+class FinancialReport {
+    + String ReportId
+    + Decimal Amount
+    + ReportStatus Status
+    + void SetAuthorized()
+    + void SetChecked()
+}
+
+class ChiefInspector {
+    + String Name
+    + bool IsActive
+    + bool ReviewReport(FinancialReport report)
+}
+
+class Auditor {
+    + String Name
+    + int ProtocolsSigned
+    + void ConductAudit(FinancialReport report, VerificationSystem sys)
+    + AuditProtocol CreateProtocol(FinancialReport report)
+}
+
+class VerificationSystem {
+    + bool IsOperational
+    + int RequestCount
+    + bool RunDiagnostic(FinancialReport report)
+}
+
+class AuditProtocol {
+    + String ProtocolId
+    + bool IsValid
+    + String DigitalSignature
+    + void Sign(String auditorName)
+}
+
+class DigitalRegistry {
+    + int EntryCount
+    + void Sync(AuditProtocol protocol)
+}
+
+' === СВЯЗИ ВЗАИМОДЕЙСТВИЯ ===
+ChiefInspector ..> FinancialReport : "Авторизует (Verify)"
+Auditor ..> VerificationSystem : "Запрашивает анализ (LockTarget)"
+Auditor ..> AuditProtocol : "Создает документ (Arm/Launch)"
+Auditor ..> DigitalRegistry : "Синхронизирует данные (Sync)"
+
+' === СТРУКТУРНЫЕ СВЯЗИ ===
+DigitalRegistry *-- AuditProtocol : "содержит архив"
+AuditProtocol o-- FinancialReport : "ссылается на"
+
+@enduml
